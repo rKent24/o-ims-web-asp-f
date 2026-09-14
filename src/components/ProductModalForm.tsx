@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Dialog,
@@ -30,20 +30,27 @@ interface ProductModalFormProps {
   onSubmit: (form: ProductForm) => Promise<void>;
 }
 
-function ProductModalForm({
+export default function ProductModalForm({
   open,
   onOpenChange,
   product,
   onSubmit,
 }: ProductModalFormProps) {
   const [form, setForm] = useState<ProductForm>({
-    code: product?.code ?? "",
-    name: product?.name ?? "",
-    price: product?.price ?? 0,
+    code: "",
+    name: "",
+    price: 0,
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    setForm({
+      code: product?.code ?? "",
+      name: product?.name ?? "",
+      price: product?.price ?? 0,
+    });
+  }, [product]);
+
+  const handleSubmit = async () => {
     await onSubmit(form);
   };
 
@@ -56,7 +63,7 @@ function ProductModalForm({
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
           <Input
             placeholder="Code"
             value={form.code}
@@ -102,14 +109,12 @@ function ProductModalForm({
               Cancel
             </Button>
 
-            <Button type="submit">
+            <Button type="button" onClick={handleSubmit}>
               {product ? "Save Changes" : "Create Product"}
             </Button>
           </div>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
 }
-
-export default ProductModalForm;
